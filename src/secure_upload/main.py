@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 import argparse
-from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler, test
+import functools
+from http.server import ThreadingHTTPServer, test
 from typing import Any
 # local files
 from .server import CustomRequestHandler
+from .client_auth import HttpBasicAuthClientAuthenticator
 
 def parse_args() -> Any:
     ap = argparse.ArgumentParser()
@@ -15,11 +17,18 @@ def parse_args() -> Any:
 def main():
     args = parse_args()
 
+    # @TODO: Read from command line or generate random
+    authenticator = HttpBasicAuthClientAuthenticator("test", "123")
+    def handler_class(*args, **kwargs):
+        return CustomRequestHandler(*args, **kwargs, authenticator=authenticator)
+    # handler_class = functools.partial(CustomRequestHandler, authenticators=[HttpBasicAuthClientAuthenticator("test", "123")])
+
     test(
-        HandlerClass=CustomRequestHandler,
+        HandlerClass=handler_class,
         ServerClass=ThreadingHTTPServer,
         port=args.http_port,
         bind=args.bind,
+
     )
 
 

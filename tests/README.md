@@ -1,5 +1,24 @@
 # Tests
 
+## Authentication
+
+Assumes `test:123` is valid credentials.
+
+Without auth header:
+```
+curl 'http://localhost:8000/'
+```
+
+With correct auth:
+```
+curl 'http://localhost:8000/' -u 'test:123'
+```
+
+With incorrect auth:
+```
+curl 'http://localhost:8000/' -u 'test:wrong'
+```
+
 ## curl
 
 Simple POST request:

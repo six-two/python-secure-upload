@@ -2,11 +2,13 @@ import cgi
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import parse_qs
+# local
+from .client_auth import BaseClientAuthenticator, MultiClientAuthenticator
 
-def send_html_response(handler: BaseHTTPRequestHandler, html_str: str):
+def send_html_response(handler: BaseHTTPRequestHandler, html_str: str, status_code = HTTPStatus.OK):
     http_bytes = bytes(html_str, "utf-8")
 
-    handler.send_response(HTTPStatus.OK)
+    handler.send_response(status_code)
     handler.send_header('Content-Type', 'text/html; charset=utf-8')
     handler.send_header('Content-Length', len(http_bytes))
     handler.end_headers()
@@ -51,10 +53,18 @@ class CustomRequestHandler(BaseHTTPRequestHandler):
             return super().send_header(keyword, value)
     ###### End: Remove the value from the Server HTTP header
 
+    def __init__(self, request: bytes, client_address: tuple[str, int], server, authenticator: BaseClientAuthenticator = None) -> None:
+        # For some reason it needs to be called before the superclass constructor.
+        # I think the constructor calls the do_GET (and similar methods), which then access the not yet defined fields
+        self.authenticator = authenticator
+        super().__init__(request, client_address, server)
+
     def do_GET(self) -> None:
-        send_html_response(self, "<h1>test page</h1>content")
+        if self.authenticator.check_authentication(self):
+            send_html_response(self, "<h1>test page</h1>content")
 
     def do_POST(self) -> None:
-        post_data = parse_request(self.headers, self.rfile)
-        print("Received POST data:", post_data)
-        send_html_response(self, "Success?")
+        if self.authenticator.check_authentication(self):
+            post_data = parse_request(self.headers, self.rfile)
+            print("Received POST data:", post_data)
+            send_html_response(self, "Success?")
