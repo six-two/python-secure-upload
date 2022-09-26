@@ -6,6 +6,7 @@ from typing import Any
 # local files
 from .server import CustomRequestHandler
 from .client_auth import HttpBasicAuthClientAuthenticator
+from .ip_blocking import IpAddressBlocker
 
 def parse_args() -> Any:
     ap = argparse.ArgumentParser()
@@ -19,8 +20,9 @@ def main():
 
     # @TODO: Read from command line or generate random
     authenticator = HttpBasicAuthClientAuthenticator("test", "123")
+    ip_address_blocker = IpAddressBlocker([], [], 2, 10)
     def handler_class(*args, **kwargs):
-        return CustomRequestHandler(*args, **kwargs, authenticator=authenticator)
+        return CustomRequestHandler(*args, authenticator, ip_address_blocker, **kwargs)
     # handler_class = functools.partial(CustomRequestHandler, authenticators=[HttpBasicAuthClientAuthenticator("test", "123")])
 
     test(
