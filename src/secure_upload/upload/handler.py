@@ -15,8 +15,8 @@ class ModuleHandler:
     def handle_GET(self, handler: BaseHTTPRequestHandler) -> None:
         self.handle_generic(handler, lambda module, handler: module.handle_GET(handler))
 
-    def handle_POST(self, handler: BaseHTTPRequestHandler) -> ModuleResult:
-        self.handle_generic(handler, lambda module, handler: module.handle_POST(handler))
+    def handle_POST(self, handler: BaseHTTPRequestHandler, post_data: dict[bytes,bytes]) -> ModuleResult:
+        self.handle_generic(handler, lambda module, handler: module.handle_POST(handler, post_data))
 
 
     def handle_generic(self, handler: BaseHTTPRequestHandler, fn_let_module_handle_the_request: Callable[[UploadModule,BaseHTTPRequestHandler],ModuleResult]):

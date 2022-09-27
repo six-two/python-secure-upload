@@ -22,5 +22,5 @@ class UploadModule:
     def handle_GET(self, handler: BaseHTTPRequestHandler) -> ModuleResult:
         raise Exception("This method needs to be overwritten by the subclass")
 
-    def handle_POST(self, handler: BaseHTTPRequestHandler) -> ModuleResult:
+    def handle_POST(self, handler: BaseHTTPRequestHandler, post_data: dict[bytes,bytes]) -> ModuleResult:
         raise Exception("This method needs to be overwritten by the subclass")

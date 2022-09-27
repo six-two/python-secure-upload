@@ -80,4 +80,4 @@ class CustomRequestHandler(BaseHTTPRequestHandler):
         if self.check_authentication():
             post_data = parse_request(self.headers, self.rfile)
             logger.debug(f"POST data: {post_data}")
-            self.upload_module_handler.handle_POST(self)
+            self.upload_module_handler.handle_POST(self, post_data)

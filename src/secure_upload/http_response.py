@@ -51,7 +51,7 @@ def send_http_response(handler: BaseHTTPRequestHandler,
     handler.wfile.write(response_bytes)
 
 
-def parse_request(headers, body_file_pointer) -> dict:
+def parse_request(headers, body_file_pointer) -> dict[bytes, bytes]:
     ctype, pdict = cgi.parse_header(headers['content-type'])
     if ctype == 'multipart/form-data':
         ### Fix the following error:
@@ -61,11 +61,32 @@ def parse_request(headers, body_file_pointer) -> dict:
         # AttributeError: 'str' object has no attribute 'decode'
 
         fixed_pdict = {key: value.encode("ascii") for key, value in pdict.items()}
-        return cgi.parse_multipart(body_file_pointer, fixed_pdict)
+        data = cgi.parse_multipart(body_file_pointer, fixed_pdict)
+        return ensure_byte_dict(data)
     elif ctype == 'application/x-www-form-urlencoded':
         length = int(headers['content-length'])
         request_body_bytes = body_file_pointer.read(length)
         # Parse query string
-        return parse_qs(request_body_bytes, keep_blank_values=1)
+        data = parse_qs(request_body_bytes, keep_blank_values=1)
+        return ensure_byte_dict(data)
     else:
         raise Exception(f"Unknown content type: '{ctype}'")   
+
+
+def ensure_byte_dict(byte_or_strings_in_dict: dict) -> dict[bytes, bytes]:
+    result = {}
+    for key, value in byte_or_strings_in_dict.items():
+        key = ensure_bytes(key)
+        if isinstance(value, list):
+            value = ensure_bytes(value[0]) if value else b""
+        else:
+            value = ensure_bytes(value)
+        result[key] = value
+    return result
+
+
+def ensure_bytes(any_str: Union[str,bytes]) -> bytes:
+    if isinstance(any_str, bytes):
+        return any_str
+    else:
+        return bytes(any_str, "utf-8")

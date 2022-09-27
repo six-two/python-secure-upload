@@ -1,1 +1,6 @@
 <Test file contents>
+for line in lines:
+    if something:
+        pseudocode here
+
+End of test file

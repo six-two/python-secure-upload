@@ -19,6 +19,15 @@ With incorrect auth:
 curl 'http://localhost:8000/' -u 'test:wrong'
 ```
 
+## GPG
+
+file.txt.gpg is encrypted with symmetric password `TODO_CHANGE_ME`.
+
+Upload file:
+```
+curl 'http://[::1]:8000/gpg' -u "test:123" -F "gpg=@tests/file.txt.gpg"
+```
+
 ## curl
 
 Simple POST request:
