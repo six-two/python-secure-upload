@@ -1,9 +1,11 @@
 import base64
+from email import header
 from hmac import compare_digest
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler
 import logging
 # local
+from .http_response import send_http_response
 
 logger = logging.getLogger("ClientAuth")
 logger.setLevel(logging.DEBUG)
@@ -11,17 +13,6 @@ c_handler = logging.StreamHandler()
 c_format = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
 c_handler.setFormatter(c_format)
 logger.addHandler(c_handler)
-
-def send_unauthorized_response(handler: BaseHTTPRequestHandler):
-    http_bytes = b"Authentication required"
-
-    handler.send_response(HTTPStatus.UNAUTHORIZED)
-    handler.send_header('Content-Type', 'text/html; charset=utf-8')
-    handler.send_header('Content-Length', len(http_bytes))
-    handler.send_header('WWW-Authenticate', "Basic")
-    handler.end_headers()
-
-    handler.wfile.write(http_bytes)
 
 
 class BaseClientAuthenticator:
@@ -37,7 +28,9 @@ class BaseClientAuthenticator:
         if self.is_authentication_valid(handler):
             return True
         else:
-            send_unauthorized_response(handler)
+            send_http_response(handler, HTTPStatus.UNAUTHORIZED,
+                headers={"WWW-Authenticate": "Basic"},
+                content="Authentication required")
             return False
 
 

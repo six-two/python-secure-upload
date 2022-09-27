@@ -3,6 +3,9 @@ import argparse
 import functools
 from http.server import ThreadingHTTPServer, test
 from typing import Any
+
+from secure_upload.upload.gpg import GpgUploadHandler
+from secure_upload.upload.handler import ModuleHandler
 # local files
 from .server import CustomRequestHandler
 from .client_auth import HttpBasicAuthClientAuthenticator
@@ -21,8 +24,12 @@ def main():
     # @TODO: Read from command line or generate random
     authenticator = HttpBasicAuthClientAuthenticator("test", "123")
     ip_address_blocker = IpAddressBlocker([], [], 2, 10)
+    modules = []
+    modules.append(GpgUploadHandler("TODO_CHANGE_ME"))
+    module_handler = ModuleHandler(modules)
+
     def handler_class(*args, **kwargs):
-        return CustomRequestHandler(*args, authenticator, ip_address_blocker, **kwargs)
+        return CustomRequestHandler(*args, authenticator, ip_address_blocker, module_handler, **kwargs)
     # handler_class = functools.partial(CustomRequestHandler, authenticators=[HttpBasicAuthClientAuthenticator("test", "123")])
 
     test(
