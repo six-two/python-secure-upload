@@ -1,5 +1,10 @@
 # Tests
 
+For testing I call the program as follows:
+```
+./src/secure-upload-server --http-basic test 123 --gpg-symmetric TODO_CHANGE_ME
+```
+
 ## Authentication
 
 Assumes `test:123` is valid credentials.
@@ -21,7 +26,8 @@ curl 'http://localhost:8000/' -u 'test:wrong'
 
 ## GPG
 
-file.txt.gpg is encrypted with symmetric password `TODO_CHANGE_ME`.
+`file.txt.gpg` is encrypted with symmetric password `TODO_CHANGE_ME`.
+`wrong-pass.txt.gpg` is encrypted with the password `wrong`.
 
 Upload file:
 ```
